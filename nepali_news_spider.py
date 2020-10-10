@@ -1,8 +1,5 @@
-from http.client import LineTooLong
-import scrapy
 from scrapy.spiders import Rule, CrawlSpider
 from scrapy.linkextractors import LinkExtractor
-from bs4 import BeautifulSoup
 
 class NepaliNewsCrawler(CrawlSpider):
     name = "Nepali_News_Crawler"
