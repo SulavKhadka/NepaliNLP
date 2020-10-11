@@ -53,6 +53,8 @@ def total_size(o, handlers={}, verbose=False, human_size=False):
 
 def humansize(nbytes):
     """Converts number of bytes into a human understandable size.
+    
+    Original code: https://stackoverflow.com/questions/14996453/python-libraries-to-calculate-human-readable-filesize-from-bytes
 
     Args:
         nbytes (int): obj size in bytes.
@@ -60,7 +62,6 @@ def humansize(nbytes):
     Returns:
         string: converted file size with units.
     """
-    # https://stackoverflow.com/questions/14996453/python-libraries-to-calculate-human-readable-filesize-from-bytes
     suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
 
     i = 0
