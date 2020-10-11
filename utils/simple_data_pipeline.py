@@ -1,6 +1,6 @@
 import glob
-from simple_item_store import SimpleItemStore
-from simple_key_value_store import SimpleKeyValueStore
+from .simple_item_store import SimpleItemStore
+from .simple_key_value_store import SimpleKeyValueStore
 
 
 class SimpleDataPipeline(object):
