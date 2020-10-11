@@ -3,7 +3,7 @@ A repo of NLP tools for the Nepali Language. Using this as a sandbox to learn an
 
 ## Tools / Features
 - [x] Nepali News Crawler
-- [ ] Word Tokenizer
+- [x] Word Tokenizer
 - [ ] Sentence Tokenizer
 - [ ] Stemmer
 - [ ] Word Embeddings (word2vec, GloVe, FastText, Transformers)
