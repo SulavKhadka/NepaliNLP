@@ -1,7 +1,7 @@
 import re
 from string import punctuation
 from icu import Locale, BreakIterator
-from .byakaran.regex import not_word_re
+from .byakaran.regex import not_word_re, word_re
 
 #From https://github.com/sushil79g/Nepali_nlp/blob/master/Nepali_nlp/Nepali_tokenizer.py
 class NepaliTokenizer:
@@ -42,33 +42,37 @@ class NepaliTokenizer:
         return tokenized_sentences
 
 
-    def word_tokenize(self, sentence):
+    def word_tokenize(self, sentence, with_delimeter=True):
         """This function tokenize with respect to word.
 
         Utilizes the grammar built by @tnagorra for https://github.com/tnagorra/nepali-text-extraction
         
         Arguments:
             sentence {string} -- sentence you want to tokenize
+            with_delimeter {bool} -- True if you want to preserve punctuation as they can be a part of the word boundary in regex.
         
         Returns:
             list -- tokenized words
         """
-        boundaries = [(m.start(0), m.end(0)) for m in not_word_re.finditer(sentence)]
-        tokenized_sentence = []
-        start_index = 0
-        end_index = 0
-        for counter, match in enumerate(boundaries):
-            if counter > 0:
-                start_index = end_index + 1 # Previous loop's end_index. Adding 1 to get the correct index for slicing.
+        if with_delimeter:
+            boundaries = [(m.start(0), m.end(0)) for m in not_word_re.finditer(sentence)]
+            tokenized_sentence = []
+            start_index = 0
+            end_index = 0
+            for counter, match in enumerate(boundaries):
+                if counter > 0:
+                    start_index = end_index + 1 # Previous loop's end_index. Adding 1 to get the correct index for slicing.
+                
+                end_index = match[0]
+                tokenized_sentence.append(sentence[start_index:end_index])
+                
+                delimeter = sentence[match[0]:match[1]].strip()
+                if delimeter != '':
+                    tokenized_sentence.append(delimeter)
             
-            end_index = match[0]
-            tokenized_sentence.append(sentence[start_index:end_index])
-            
-            delimeter = sentence[match[0]:match[1]].strip()
-            if delimeter != '':
-                tokenized_sentence.append(delimeter)
+            return tokenized_sentence
         
-        return tokenized_sentence
+        return word_re.findall(sentence)
 
 
     def simple_word_tokenize(self, sentence, new_punctuation=[]):

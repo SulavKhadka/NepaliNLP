@@ -1,9 +1,9 @@
 from string import punctuation
 import ijson
 from tqdm import tqdm
-from simple_item_store import SimpleItemStore
-from simple_data_pipeline import SimpleDataPipeline
-from nepali_tokenizer import NepaliTokenizer
+from utils.simple_item_store import SimpleItemStore
+from utils.simple_data_pipeline import SimpleDataPipeline
+from tokenizer.nepali_tokenizer import NepaliTokenizer
 from data.language_data.stopwords import stopwords
 from data.language_data.alphabhet_and_characters import alphabhet
 
