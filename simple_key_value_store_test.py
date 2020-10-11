@@ -14,30 +14,45 @@ def load_news_data_generator(file, items=None):
             yield item
 
 
-def item_store_time_perf():
+def item_store_time_perf(file):
     item_store = SimpleItemStore()
 
     time = []
-    for sentence in tqdm(load_news_data_generator("data/nepali_news_crawl_nayapatrika.json")):
+    for sentence in tqdm(load_news_data_generator(file)):
         start = perf_counter()
-        item_store.add(sentence)
+        item_store.add_adler(sentence)
+        stop = perf_counter()
+        time.append(stop - start)
+
+    avg_xx3 = sum(time)/len(time)
+
+    time = []
+    for sentence in tqdm(load_news_data_generator(file)):
+        start = perf_counter()
+        item_store.add_xx3(sentence)
         stop = perf_counter()
         time.append(stop - start)
 
     avg_adler = sum(time)/len(time)
 
-    return avg_adler
+    return (avg_xx3, avg_adler)
 
 
 def item_store_size_perf(file):
     item_store = SimpleItemStore()
 
     for sentence in tqdm(load_news_data_generator(file)):
-        item_store.add(sentence)
+        item_store.add_adler(sentence)
 
-    size = total_size(item_store.item_store)
+    adler_size = total_size(item_store.item_store)
+    item_store.flush()
 
-    return size
+    for sentence in tqdm(load_news_data_generator(file)):
+        item_store.add_xx3(sentence)
+
+    xx3_size = total_size(item_store.item_store)
+
+    return (xx3_size, adler_size)
 
 
 
@@ -45,10 +60,15 @@ def main():
     xx_bucket = []
     adler_bucket = []
     for i in range(5):
-        adler = item_store_size_perf("data/nepali_news_crawl_nayapatrika.json")
+        xx3, adler = item_store_time_perf("data/nepali_news_crawl_news24nepal.json")
+        xx_bucket.append(xx3)
         adler_bucket.append(adler)
     
-    print(f"item_store.add_adler() avg space: {humansize(sum(adler_bucket)/len(adler_bucket))}")
+    print(f"item_store.add_adler() avg time: {sum(adler_bucket)/len(adler_bucket)}")
+    print(f"item_store.add_xx3() avg time: {sum(xx_bucket)/len(xx_bucket)}")
+
+    # print(f"item_store.add_adler() avg space: {humansize(sum(adler_bucket)/len(adler_bucket))}")
+    # print(f"item_store.add_xx3() avg space: {humansize(sum(xx_bucket)/len(xx_bucket))}")
 
 
 main()
