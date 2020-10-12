@@ -4,8 +4,8 @@ from tqdm import tqdm
 from utils.simple_item_store import SimpleItemStore
 from utils.simple_data_pipeline import SimpleDataPipeline
 from tokenizer.nepali_tokenizer import NepaliTokenizer
-from data.language_data.stopwords import stopwords
-from data.language_data.alphabhet_and_characters import alphabhet
+from language_data.stopwords import stopwords
+from language_data.alphabhet_and_characters import number, punctuation
 from tokenizer.byakaran.regex import number_token_re
 
 
@@ -24,7 +24,7 @@ def load_news_data(file_path_list):
 def sanitize_sentence(sentences, tokenizer, word_filter_set):
     for sentence in sentences:
         tokenized_sentence = tokenizer.word_tokenize(sentence)       
-        yield " ".join([word for word in tokenized_sentence if word not in word_filter_set if number_token_re.fullmatch(word) is None])
+        yield " ".join([word for word in tokenized_sentence if word not in word_filter_set])
         
 
 def unique_sentences(sentences, storage):
@@ -41,10 +41,10 @@ processor = SimpleDataPipeline("data/unsanitized/*.json")
 # this is the order we want the functions to run
 processor.add_filter(new_filter=load_news_data)
 
-filter_words = [*stopwords, *alphabhet['number'], *alphabhet['punctuation']]
+filter_words = [*stopwords, *number, *punctuation]
 processor.add_filter(new_filter=sanitize_sentence, args=[NepaliTokenizer(), set(filter_words)])
 
-processor.add_filter(new_filter=unique_sentences, storage=SimpleItemStore())
+# processor.add_filter(new_filter=unique_sentences, storage=SimpleItemStore())
 
 # process() returns the generator pipeline
 counter = 0
