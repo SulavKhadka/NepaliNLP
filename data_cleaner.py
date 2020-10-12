@@ -6,6 +6,8 @@ from utils.simple_data_pipeline import SimpleDataPipeline
 from tokenizer.nepali_tokenizer import NepaliTokenizer
 from data.language_data.stopwords import stopwords
 from data.language_data.alphabhet_and_characters import alphabhet
+from tokenizer.byakaran.regex import number_token_re
+
 
 
 def load_news_data(file_path_list):
@@ -21,8 +23,8 @@ def load_news_data(file_path_list):
 
 def sanitize_sentence(sentences, tokenizer, word_filter_set):
     for sentence in sentences:
-        tokenized_sentence = tokenizer.word_tokenize(sentence)
-        yield " ".join([word for word in tokenized_sentence if word not in word_filter_set])
+        tokenized_sentence = tokenizer.word_tokenize(sentence)       
+        yield " ".join([word for word in tokenized_sentence if word not in word_filter_set if number_token_re.fullmatch(word) is None])
         
 
 def unique_sentences(sentences, storage):

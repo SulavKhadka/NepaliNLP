@@ -29,3 +29,9 @@ _g.putr('pragmatic_word', r'(?:{word}|{number}+{word}?|{ohm})')
 not_word_re = re.compile(_g.get('not_word'))
 boundary_re = re.compile(_g.get('boundary'))
 word_re = re.compile('^' + _g.get('pragmatic_word') + '$')
+
+# Custom patterns
+_g.putr('number_token', r'({number}+)')
+
+number_token_re = re.compile(_g.get('number_token'))
+
