@@ -2,11 +2,12 @@ import re
 from string import punctuation
 from icu import Locale, BreakIterator
 from .byakaran.regex import not_word_re, word_re
+from language_data.alphabhet_and_characters import punctuation_char
 
 #From https://github.com/sushil79g/Nepali_nlp/blob/master/Nepali_nlp/Nepali_tokenizer.py
 class NepaliTokenizer:
     def __init__(self):
-        pass
+        self.punctuation_signs = set(punctuation_char)
 
 
     def sentence_tokenize(self, text, new_punctuation=[]):
@@ -61,14 +62,18 @@ class NepaliTokenizer:
             end_index = 0
             for counter, match in enumerate(boundaries):
                 if counter > 0:
-                    start_index = end_index + 1 # Previous loop's end_index. Adding 1 to get the correct index for slicing.
-                
+                    start_index = end_index # Previous loop's end_index. Adding 1 to get the correct index for slicing.
                 end_index = match[0]
-                tokenized_sentence.append(sentence[start_index:end_index])
-                
+
+                token = sentence[start_index:end_index].strip()
                 delimeter = sentence[match[0]:match[1]].strip()
+
+                if token != '':
+                    tokenized_sentence.append(token)
                 if delimeter != '':
                     tokenized_sentence.append(delimeter)
+                
+                end_index = match[1]
             
             return tokenized_sentence
         
@@ -120,3 +125,8 @@ class NepaliTokenizer:
 
     def __str__(self):
         return "Helps to tokenize content written in Nepali language." 
+
+
+if __name__ == "__main__":
+    np = NepaliTokenizer()
+    print(np.word_tokenize("असोज २२ मा बसेको मन्त्रिपरिषद् बैठकले मदिरा आयातमा लगाइएको प्रतिबन्ध फुकुवा गरेको सरकारका प्रवक्ता एवं परराष्ट्रमन्त्री प्रदीप ज्ञवालीले जानकारी दिए ।"))

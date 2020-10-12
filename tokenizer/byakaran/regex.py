@@ -31,7 +31,8 @@ boundary_re = re.compile(_g.get('boundary'))
 word_re = re.compile('^' + _g.get('pragmatic_word') + '$')
 
 # Custom patterns
-_g.putr('number_token', r'({number}+)')
+_g.putr('number_token', r'(?:{number}+)')
+_g.putr('unwanted_token', r'(?:{number}+|{unknown_char}+)')
 
 number_token_re = re.compile(_g.get('number_token'))
-
+unwanted_token_re = re.compile(_g.get('unwanted_token'))
