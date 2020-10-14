@@ -3,11 +3,13 @@ from string import punctuation
 from icu import Locale, BreakIterator
 from .byakaran.regex import not_word_re, word_re
 from language_data.alphabhet_and_characters import punctuation_char
+from ahocorapy.keywordtree import KeywordTree
 
 #From https://github.com/sushil79g/Nepali_nlp/blob/master/Nepali_nlp/Nepali_tokenizer.py
 class NepaliTokenizer:
     def __init__(self):
         self.punctuation_signs = set(punctuation_char)
+        self.kwtree = self.build_tree()
 
 
     def sentence_tokenize(self, text, new_punctuation=[]):
@@ -46,6 +48,7 @@ class NepaliTokenizer:
     def word_tokenize(self, sentence, with_delimeter=True):
         """This function tokenize with respect to word.
 
+        # FIXME: Doesnt capture the last word of a sentence in some circumstances!!
         Utilizes the grammar built by @tnagorra for https://github.com/tnagorra/nepali-text-extraction
         
         Arguments:
@@ -56,28 +59,70 @@ class NepaliTokenizer:
             list -- tokenized words
         """
         if with_delimeter:
-            boundaries = [(m.start(0), m.end(0)) for m in not_word_re.finditer(sentence)]
             tokenized_sentence = []
             start_index = 0
             end_index = 0
-            for counter, match in enumerate(boundaries):
-                if counter > 0:
-                    start_index = end_index # Previous loop's end_index. Adding 1 to get the correct index for slicing.
-                end_index = match[0]
+            for boundary in not_word_re.finditer(sentence):
+                left_boundary = boundary.start(0)
+                right_boundary = boundary.end(0)
+                end_index = left_boundary
 
                 token = sentence[start_index:end_index].strip()
-                delimeter = sentence[match[0]:match[1]].strip()
+                delimeter = sentence[left_boundary:right_boundary].strip()
 
                 if token != '':
                     tokenized_sentence.append(token)
                 if delimeter != '':
                     tokenized_sentence.append(delimeter)
                 
-                end_index = match[1]
-            
+                start_index = right_boundary
+
             return tokenized_sentence
         
         return word_re.findall(sentence)
+
+
+
+    def word_tokenize_ahocorapy(self, sentence):
+        # TODO: This is slow; inverse this list to see what you get back
+        results = self.kwtree.search_all(sentence)
+        tokenized_sentence = []
+        sentence_length = len(sentence)
+        start_token_index = 0
+        end_token_index = 0
+        previous_token_index = 0
+        for result in results:
+            current_token_index = result[1]
+            token_distance = current_token_index - previous_token_index
+
+            if token_distance > 1:
+                end_token_index = previous_token_index + 1
+
+                word = sentence[start_token_index:end_token_index]
+                delimeter = sentence[(previous_token_index + 1):current_token_index]
+
+                tokenized_sentence.append(word)
+                tokenized_sentence.append(delimeter)
+
+                start_token_index = current_token_index
+                end_token_index = None
+            
+            previous_token_index = current_token_index
+        
+        if previous_token_index != sentence_length - 1:
+            end_token_index = previous_token_index + 1
+
+        # cant combine the two if statements, because the `if` above can manipulate end_token_index which the `if` below needs.    
+        if end_token_index:
+            tokenized_sentence.append(sentence[start_token_index:end_token_index])
+            tokenized_sentence.append(sentence[(previous_token_index + 1):sentence_length])
+        else:
+            tokenized_sentence.append(sentence[start_token_index:])
+        
+        tokenized_sentence = [i for i in tokenized_sentence if i.strip() != '']
+
+        return tokenized_sentence
+
 
 
     def simple_word_tokenize(self, sentence, new_punctuation=[]):
@@ -121,6 +166,15 @@ class NepaliTokenizer:
             i = j
 
         return char
+
+    @staticmethod
+    def build_tree():
+        kwtree = KeywordTree()
+        word = "क़ख़ग़ज़ड़ढ़फ़य़ऩऱॿॾॼॻकखगघङचछजझञटठडढणतथदधनपफबभमयरऱलळवशषसह़ािीुूृॅॆेैॉॊोौऻऺॄॆॏॗॖॢॣ्\u200d\u200cॷॶॵॴॳॲअआइईउऊऋऍऎएऐऑऒओऔॠऌॡँंःॐऽॱ॰१२३४५६७८९०^"
+        for i in word:
+            kwtree.add(i)
+        kwtree.finalize()
+        return kwtree
 
 
     def __str__(self):

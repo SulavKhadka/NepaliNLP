@@ -1,9 +1,9 @@
 import sys
 import ijson
 from tqdm import tqdm
-from simple_key_value_store import SimpleKeyValueStore
-from simple_item_store import SimpleItemStore
-from helpers import humansize, total_size
+from .simple_key_value_store import SimpleKeyValueStore
+from .simple_item_store import SimpleItemStore
+from .helpers import humansize, total_size
 from time import perf_counter 
 
 

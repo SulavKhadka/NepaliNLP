@@ -12,11 +12,11 @@ class SimpleItemStore():
 
 
     def __iter__(self):
-        return self.item_store.__iter__
+        return self.item_store.__iter__()
 
 
     def __len__(self):
-        return self.item_store.__len__
+        return self.item_store.__len__()
 
 
     def __contains__(self, text):
